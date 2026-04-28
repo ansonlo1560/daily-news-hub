@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily News Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161e;
+      --card: #1a1d27;
+      --border: rgba(255,255,255,0.07);
+      --text-primary: #f0f2f8;
+      --text-secondary: #8a90a8;
+      --text-muted: #4a5068;
+      --accent-hk: #e8523a;
+      --accent-cn: #c0392b;
+      --accent-world: #3a7bd5;
+      --accent-tech: #27ae8f;
+      --accent-finance: #d4a017;
+      --accent-sport: #8e44ad;
+      --red: #e8523a;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /* ── BACKGROUND GLOW ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 40% at 10% 0%, rgba(232,82,58,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 90% 80%, rgba(58,123,213,0.07) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13,15,20,0.82);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 max(1.5rem, calc((100% - 1400px)/2 + 1.5rem));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .logo-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--red);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(232,82,58,0.6); }
+      50% { box-shadow: 0 0 0 6px rgba(232,82,58,0); }
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    #clock {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+    }
+    #refresh-btn {
+      background: rgba(232,82,58,0.12);
+      border: 1px solid rgba(232,82,58,0.3);
+      color: var(--red);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    #refresh-btn:hover {
+      background: rgba(232,82,58,0.22);
+      transform: scale(1.03);
+    }
+    #refresh-btn.spinning svg {
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #next-refresh {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* ── LAYOUT ── */
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* ── TICKER ── */
+    .ticker-wrap {
+      overflow: hidden;
+      background: rgba(232,82,58,0.07);
+      border: 1px solid rgba(232,82,58,0.15);
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      height: 40px;
+    }
+    .ticker-label {
+      flex-shrink: 0;
+      padding: 0 14px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--red);
+      border-right: 1px solid rgba(232,82,58,0.2);
+      height: 100%;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+    .ticker-track {
+      flex: 1;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .ticker-inner {
+      display: inline-block;
+      animation: ticker 60s linear infinite;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    .ticker-inner:hover { animation-play-state: paused; }
+    @keyframes ticker {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    .ticker-sep { margin: 0 2rem; color: var(--text-muted); }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .tab-btn {
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tab-btn:hover { border-color: rgba(255,255,255,0.15); color: var(--text-primary); }
+    .tab-btn.active {
+      background: var(--accent);
+      border-color: transparent;
+      color: #fff;
+    }
+    .tab-btn .count {
+      background: rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 1px 7px;
+      font-size: 0.7rem;
+    }
+
+    /* ── GRID ── */
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1rem;
+    }
+
+    /* ── CARD ── */
+    .news-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.16,1,0.3,1), border-color 0.2s, box-shadow 0.2s;
+      animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) backwards;
+      text-decoration: none;
+      color: inherit;
+    }
+    .news-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255,255,255,0.13);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .card-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 5px;
+      background: color-mix(in srgb, var(--tag-color) 15%, transparent);
+      color: var(--tag-color);
+      border: 1px solid color-mix(in srgb, var(--tag-color) 25%, transparent);
+      white-space: nowrap;
+    }
+    .card-time {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.45;
+      color: var(--text-primary);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-desc {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-source {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: auto;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+    .card-source-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--tag-color);
+    }
+
+    /* ── LOADING SKELETON ── */
+    .skeleton-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .skel {
+      background: linear-gradient(90deg, var(--surface) 25%, rgba(255,255,255,0.04) 50%, var(--surface) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 6px;
+    }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+    .skel-sm { height: 12px; width: 40%; }
+    .skel-title { height: 14px; width: 100%; }
+    .skel-title2 { height: 14px; width: 80%; }
+    .skel-desc { height: 11px; width: 100%; }
+    .skel-desc2 { height: 11px; width: 65%; }
+
+    /* ── ERROR ── */
+    .error-msg {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .error-msg a {
+      color: var(--red);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      header { padding: 0 1rem; }
+      main { padding: 1rem 1rem 3rem; }
+      .news-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    Daily News Hub
+  </div>
+  <div class="header-right">
+    <div>
+      <div id="clock"></div>
+      <div id="next-refresh"></div>
+    </div>
+    <button id="refresh-btn" onclick="refreshAll()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+      </svg>
+      Refresh
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- TICKER -->
+  <div class="ticker-wrap">
+    <div class="ticker-label">&#9679; Live</div>
+    <div class="ticker-track">
+      <div class="ticker-inner" id="ticker-text">Loading headlines...</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs" id="tabs"></div>
+
+  <!-- CONTENT -->
+  <div id="content"></div>
+</main>
+
+<footer>
+  News sourced from public RSS feeds via rss2json.com &nbsp;&middot;&nbsp; Auto-refreshes every 15 minutes
+</footer>
+
+<script>
+// ────────────────────────────────────────────────
+// SOURCES CONFIGURATION
+// ────────────────────────────────────────────────
+const CATEGORIES = [
+  {
+    id: 'all',
+    label: 'All',
+    icon: '&#9679;',
+    accent: '#e8523a',
+  },
+  {
+    id: 'hk',
+    label: 'Hong Kong',
+    icon: '&#127752;',
+    accent: '#e8523a',
+    feeds: [
+      { name: 'RTHK News', url: 'https://rthk.hk/rss/news.xml', tag: 'RTHK' },
+      { name: 'SCMP HK', url: 'https://www.scmp.com/rss/91/feed', tag: 'SCMP' },
+      { name: 'HK01', url: 'https://www.hk01.com/rss/index', tag: 'HK01' },
+    ]
+  },
+  {
+    id: 'cn',
+    label: 'China',
+    icon: '&#127464;&#127475;',
+    accent: '#c0392b',
+    feeds: [
+      { name: 'Xinhua English', url: 'https://www.xinhuanet.com/english/rss/chinalatestnews.xml', tag: 'Xinhua' },
+      { name: 'China Daily', url: 'https://www.chinadaily.com.cn/rss/china_rss.xml', tag: 'China Daily' },
+      { name: 'Global Times', url: 'https://www.globaltimes.cn/rss/outbrain.xml', tag: 'Global Times' },
+    ]
+  },
+  {
+    id: 'world',
+    label: 'World',
+    icon: '&#127760;',
+    accent: '#3a7bd5',
+    feeds: [
+      { name: 'BBC World', url: 'https://feeds.bbci.co.uk/news/world/rss.xml', tag: 'BBC' },
+      { name: 'Reuters', url: 'https://feeds.reuters.com/reuters/topNews', tag: 'Reuters' },
+      { name: 'AP News', url: 'https://rsshub.app/apnews/topics/apf-topnews', tag: 'AP' },
+    ]
+  },
+  {
+    id: 'tech',
+    label: 'Tech',
+    icon: '&#128187;',
+    accent: '#27ae8f',
+    feeds: [
+      { name: 'TechCrunch', url: 'https://techcrunch.com/feed/', tag: 'TechCrunch' },
+      { name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml', tag: 'The Verge' },
+      { name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/index', tag: 'Ars Technica' },
+    ]
+  },
+  {
+    id: 'finance',
+    label: 'Finance',
+    icon: '&#128200;',
+    accent: '#d4a017',
+    feeds: [
+      { name: 'FT Markets', url: 'https://www.ft.com/rss/home', tag: 'FT' },
+      { name: 'Bloomberg', url: 'https://feeds.bloomberg.com/markets/news.rss', tag: 'Bloomberg' },
+      { name: 'WSJ Markets', url: 'https://feeds.a.dj.com/rss/RSSMarketsMain.xml', tag: 'WSJ' },
+    ]
+  },
+  {
+    id: 'sport',
+    label: 'Sport',
+    icon: '&#9917;',
+    accent: '#8e44ad',
+    feeds: [
+      { name: 'BBC Sport', url: 'https://feeds.bbci.co.uk/sport/rss.xml', tag: 'BBC Sport' },
+      { name: 'ESPN', url: 'https://www.espn.com/espn/rss/news', tag: 'ESPN' },
+    ]
+  },
+];
+
+const RSS2JSON = 'https://api.rss2json.com/v1/api.json?rss_url=';
+const ITEMS_PER_FEED = 8;
+const REFRESH_INTERVAL = 15 * 60 * 1000; // 15 min
+
+// ────────────────────────────────────────────────
+// STATE
+// ────────────────────────────────────────────────
+let allArticles = [];       // { title, description, link, pubDate, source, tag, accent }
+let activeTab = 'all';
+let refreshTimer = null;
+let countdownTimer = null;
+let nextRefreshAt = null;
+
+// ────────────────────────────────────────────────
+// CLOCK
+// ────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('en-HK', {
+    timeZone: 'Asia/Hong_Kong',
+    hour12: false,
+  }) + ' HKT';
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+function updateCountdown() {
+  if (!nextRefreshAt) return;
+  const diff = Math.max(0, Math.round((nextRefreshAt - Date.now()) / 1000));
+  const m = String(Math.floor(diff / 60)).padStart(2, '0');
+  const s = String(diff % 60).padStart(2, '0');
+  document.getElementById('next-refresh').textContent = `Next: ${m}:${s}`;
+}
+setInterval(updateCountdown, 1000);
+
+// ────────────────────────────────────────────────
+// TABS
+// ────────────────────────────────────────────────
+function renderTabs() {
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (cat.id === activeTab ? ' active' : '');
+    btn.style.setProperty('--accent', cat.accent);
+    if (cat.id === activeTab) btn.style.background = cat.accent;
+
+    const articles = cat.id === 'all' ? allArticles : allArticles.filter(a => a.catId === cat.id);
+    btn.innerHTML = `${cat.icon} ${cat.label} <span class="count">${articles.length}</span>`;
+    btn.onclick = () => { activeTab = cat.id; renderTabs(); renderContent(); };
+    tabsEl.appendChild(btn);
+  });
+}
+
+// ────────────────────────────────────────────────
+// CONTENT
+// ────────────────────────────────────────────────
+function renderContent() {
+  const contentEl = document.getElementById('content');
+  const articles = activeTab === 'all' ? allArticles : allArticles.filter(a => a.catId === activeTab);
+
+  if (articles.length === 0) {
+    contentEl.innerHTML = `
+      <div class="section-title">No articles loaded</div>
+      <div class="news-grid">
+        ${[...Array(6)].map(() => skeletonCard()).join('')}
+      </div>`;
+    return;
+  }
+
+  if (activeTab === 'all') {
+    // grouped by category
+    let html = '';
+    CATEGORIES.filter(c => c.id !== 'all').forEach(cat => {
+      const cats = articles.filter(a => a.catId === cat.id);
+      if (!cats.length) return;
+      html += `<div class="section-title" style="margin-top:1.8rem">${cat.icon} ${cat.label}</div>`;
+      html += `<div class="news-grid">` + cats.slice(0, 6).map((a, i) => articleCard(a, i)).join('') + `</div>`;
+    });
+    contentEl.innerHTML = html;
+  } else {
+    const cat = CATEGORIES.find(c => c.id === activeTab);
+    contentEl.innerHTML = `
+      <div class="section-title">${cat.icon} ${cat.label} — ${articles.length} articles</div>
+      <div class="news-grid">${articles.map((a, i) => articleCard(a, i)).join('')}</div>`;
+  }
+}
+
+function articleCard(a, index) {
+  const delay = (index % 12) * 40;
+  const desc = stripHtml(a.description || '').slice(0, 160);
+  return `
+    <a class="news-card" href="${a.link}" target="_blank" rel="noopener"
+       style="animation-delay:${delay}ms; --tag-color:${a.accent}">
+      <div class="card-meta">
+        <span class="card-tag">${a.tag}</span>
+        <span class="card-time">${timeAgo(a.pubDate)}</span>
+      </div>
+      <div class="card-title">${escHtml(a.title)}</div>
+      ${desc ? `<div class="card-desc">${escHtml(desc)}</div>` : ''}
+      <div class="card-source">
+        <span class="card-source-dot"></span>
+        ${escHtml(a.source)}
+      </div>
+    </a>`;
+}
+
+function skeletonCard() {
+  return `
+    <div class="skeleton-card">
+      <div class="skel skel-sm"></div>
+      <div class="skel skel-title"></div>
+      <div class="skel skel-title2"></div>
+      <div class="skel skel-desc"></div>
+      <div class="skel skel-desc2"></div>
+    </div>`;
+}
+
+// ────────────────────────────────────────────────
+// FETCH
+// ────────────────────────────────────────────────
+async function fetchFeed(feedCfg, catId, accent) {
+  const url = RSS2JSON + encodeURIComponent(feedCfg.url) + `&count=${ITEMS_PER_FEED}`;
+  try {
+    const r = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    if (!r.ok) return [];
+    const data = await r.json();
+    if (data.status !== 'ok') return [];
+    return (data.items || []).map(item => ({
+      title: item.title || '',
+      description: item.description || item.content || '',
+      link: item.link || '#',
+      pubDate: item.pubDate || '',
+      source: feedCfg.name,
+      tag: feedCfg.tag,
+      catId,
+      accent,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+async function fetchAll() {
+  const promises = [];
+  CATEGORIES.filter(c => c.id !== 'all').forEach(cat => {
+    (cat.feeds || []).forEach(feed => {
+      promises.push(fetchFeed(feed, cat.id, cat.accent));
+    });
+  });
+  const results = await Promise.allSettled(promises);
+  const articles = [];
+  results.forEach(r => {
+    if (r.status === 'fulfilled') articles.push(...r.value);
+  });
+  // dedupe by link
+  const seen = new Set();
+  return articles.filter(a => {
+    if (seen.has(a.link)) return false;
+    seen.add(a.link);
+    return true;
+  }).sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+}
+
+async function refreshAll() {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('spinning');
+
+  // show skeletons immediately
+  const contentEl = document.getElementById('content');
+  contentEl.innerHTML = `<div class="section-title">Loading news...</div><div class="news-grid">${[...Array(9)].map(() => skeletonCard()).join('')}</div>`;
+
+  allArticles = await fetchAll();
+  updateTicker();
+  renderTabs();
+  renderContent();
+
+  btn.classList.remove('spinning');
+
+  // schedule next
+  clearTimeout(refreshTimer);
+  clearInterval(countdownTimer);
+  nextRefreshAt = Date.now() + REFRESH_INTERVAL;
+  refreshTimer = setTimeout(refreshAll, REFRESH_INTERVAL);
+}
+
+// ────────────────────────────────────────────────
+// TICKER
+// ────────────────────────────────────────────────
+function updateTicker() {
+  const top = allArticles.slice(0, 20);
+  if (!top.length) return;
+  document.getElementById('ticker-text').innerHTML =
+    top.map(a => `<span>${escHtml(a.title)}</span><span class="ticker-sep">&#9679;</span>`).join('');
+}
+
+// ────────────────────────────────────────────────
+// UTILS
+// ────────────────────────────────────────────────
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function stripHtml(s) {
+  return s.replace(/<[^>]*>/g, '').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').trim();
+}
+
+// ────────────────────────────────────────────────
+// INIT
+// ────────────────────────────────────────────────
+(function init() {
+  renderTabs();
+  renderContent();
+  refreshAll();
+})();
+</script>
+</body>
+</html>
