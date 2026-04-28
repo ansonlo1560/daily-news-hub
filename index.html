@@ -482,9 +482,12 @@ const CATEGORIES = [
   },
 ];
 
+// ── Get a FREE API key at https://rss2json.com/#rss_to_json_home_page ──
+// Paste it below to remove the 30-min cache delay on free tier.
+const RSS2JSON_KEY = '';   // e.g. 'abcdef1234567890abcdef1234567890abcdef12'
 const RSS2JSON = 'https://api.rss2json.com/v1/api.json?rss_url=';
 const ITEMS_PER_FEED = 8;
-const REFRESH_INTERVAL = 15 * 60 * 1000; // 15 min
+const REFRESH_INTERVAL = 10 * 60 * 1000; // 10 min
 
 // ────────────────────────────────────────────────
 // STATE
@@ -604,23 +607,25 @@ function skeletonCard() {
 // FETCH
 // ────────────────────────────────────────────────
 async function fetchFeed(feedCfg, catId, accent) {
-  const url = RSS2JSON + encodeURIComponent(feedCfg.url) + `&count=${ITEMS_PER_FEED}`;
+  let url = RSS2JSON + encodeURIComponent(feedCfg.url) + `&count=${ITEMS_PER_FEED}`;
+  if (RSS2JSON_KEY) url += `&api_key=${RSS2JSON_KEY}`;
   try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(10000) });
-    if (!r.ok) return [];
+    const r = await fetch(url, { signal: AbortSignal.timeout(12000) });
+    if (!r.ok) { console.warn(`[${feedCfg.name}] HTTP ${r.status}`); return []; }
     const data = await r.json();
-    if (data.status !== 'ok') return [];
+    if (data.status !== 'ok') { console.warn(`[${feedCfg.name}] rss2json:`, data.message); return []; }
     return (data.items || []).map(item => ({
       title: item.title || '',
       description: item.description || item.content || '',
       link: item.link || '#',
-      pubDate: item.pubDate || '',
+      pubDate: item.pubDate || new Date().toISOString(),
       source: feedCfg.name,
       tag: feedCfg.tag,
       catId,
       accent,
     }));
-  } catch {
+  } catch(e) {
+    console.warn(`[${feedCfg.name}] fetch error:`, e.message);
     return [];
   }
 }
@@ -650,20 +655,28 @@ async function refreshAll() {
   const btn = document.getElementById('refresh-btn');
   btn.classList.add('spinning');
 
-  // show skeletons immediately
   const contentEl = document.getElementById('content');
-  contentEl.innerHTML = `<div class="section-title">Loading news...</div><div class="news-grid">${[...Array(9)].map(() => skeletonCard()).join('')}</div>`;
+  contentEl.innerHTML = `<div class="section-title">Fetching latest news...</div><div class="news-grid">${[...Array(9)].map(() => skeletonCard()).join('')}</div>`;
 
   allArticles = await fetchAll();
+
+  if (allArticles.length === 0) {
+    contentEl.innerHTML = `<div class="error-msg">
+      Could not load any feeds. This is usually due to the <strong>rss2json.com free-tier rate limit</strong>.<br><br>
+      Fix: <a href="https://rss2json.com/#rss_to_json_home_page" target="_blank">Get a free API key</a> and paste it into <code>RSS2JSON_KEY</code> in the source code.
+    </div>`;
+    btn.classList.remove('spinning');
+    return;
+  }
+
   updateTicker();
   renderTabs();
   renderContent();
+  console.log(`[NewsHub] Loaded ${allArticles.length} articles at ${new Date().toLocaleTimeString()}`);
 
   btn.classList.remove('spinning');
 
-  // schedule next
   clearTimeout(refreshTimer);
-  clearInterval(countdownTimer);
   nextRefreshAt = Date.now() + REFRESH_INTERVAL;
   refreshTimer = setTimeout(refreshAll, REFRESH_INTERVAL);
 }
