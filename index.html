@@ -1148,14 +1148,18 @@ async function translateBatch(titles) {
 }
 
 async function fetchAll() {
-  const lang     = currentLang;
-  const feedKey  = lang === 'zh' ? 'feeds_zh' : 'feeds_en';
+  const lang    = currentLang;
   const promises = [];
+
   CATEGORIES.filter(c => c.id !== 'all').forEach(cat => {
-    // Use language-specific feeds; fallback to the other if missing
-    const feeds = cat[feedKey] || cat['feeds_en'] || cat['feeds_zh'] || [];
-    feeds.forEach(feed => promises.push(fetchFeed(feed, cat.id, cat.accent)));
+    // Always fetch the stable English feeds
+    (cat.feeds_en || []).forEach(feed => promises.push(fetchFeed(feed, cat.id, cat.accent)));
+    // In zh mode, also try Chinese feeds as bonus (failures silently return [])
+    if (lang === 'zh') {
+      (cat.feeds_zh || []).forEach(feed => promises.push(fetchFeed(feed, cat.id, cat.accent)));
+    }
   });
+
   const results  = await Promise.allSettled(promises);
   const articles = [];
   results.forEach(r => { if (r.status === 'fulfilled') articles.push(...r.value); });
@@ -1165,13 +1169,14 @@ async function fetchAll() {
     seen.add(a.link); return true;
   }).sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
-  // In zh mode, translate titles that are still in English
+  // In zh mode, translate titles that are still in English (first 50 only to stay within free quota)
   if (lang === 'zh') {
-    const needTranslate = unique.map(a => isCJK(a.title) ? null : a.title);
-    const hasWork = needTranslate.some(t => t !== null);
+    const toTranslate = unique.slice(0, 50);
+    const needTranslate = toTranslate.map(a => isCJK(a.title) ? null : a.title);
+    const hasWork = needTranslate.some(x => x !== null);
     if (hasWork) {
       const translated = await translateBatch(needTranslate);
-      unique.forEach((a, i) => {
+      toTranslate.forEach((a, i) => {
         if (translated[i] && translated[i] !== a.title) a.title = translated[i];
       });
     }
@@ -1193,6 +1198,7 @@ async function refreshAll() {
   if (allArticles.length === 0) {
     contentEl.innerHTML = `<div class="error-msg">${t().feedError}</div>`;
     document.getElementById('hero-container').innerHTML = '';
+    renderTabs();   // still update tab labels for current language
     btn.classList.remove('spinning');
     return;
   }
