@@ -168,6 +168,178 @@
     }
     .ticker-sep { margin: 0 2rem; color: var(--text-muted); }
 
+    /* ── HERO HEADLINE ── */
+    .hero-section {
+      margin-bottom: 2.5rem;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(26,29,39,0.98) 0%, rgba(19,22,30,0.98) 100%);
+    }
+    .hero-top {
+      padding: 2rem 2rem 1.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--red);
+      background: rgba(232,82,58,0.1);
+      border: 1px solid rgba(232,82,58,0.25);
+      border-radius: 6px;
+      padding: 4px 10px;
+      margin-bottom: 1.1rem;
+    }
+    .hero-eyebrow-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--red);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .hero-headline {
+      font-size: clamp(1.35rem, 3vw, 2.1rem);
+      font-weight: 800;
+      line-height: 1.22;
+      letter-spacing: -0.025em;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      text-decoration: none;
+      display: block;
+      transition: color 0.2s;
+    }
+    .hero-headline:hover { color: #fff; }
+    .hero-desc {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      line-height: 1.68;
+      max-width: 820px;
+    }
+    .hero-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 1.2rem;
+      flex-wrap: wrap;
+    }
+    .hero-source-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .hero-source-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+    .hero-time {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+    .hero-read-btn {
+      margin-left: auto;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--red);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: gap 0.2s;
+      white-space: nowrap;
+    }
+    .hero-read-btn:hover { gap: 8px; }
+
+    /* ── MEDIA VOICES ── */
+    .hero-voices {
+      padding: 1.4rem 2rem 1.8rem;
+    }
+    .voices-heading {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .voices-heading::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .voices-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 10px;
+    }
+    .voice-card {
+      background: rgba(255,255,255,0.028);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      transition: background 0.2s, border-color 0.2s, transform 0.18s;
+    }
+    .voice-card:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.12);
+      transform: translateY(-2px);
+    }
+    .voice-source {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+    .voice-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .voice-title {
+      font-size: 0.8rem;
+      font-weight: 500;
+      line-height: 1.42;
+      color: var(--text-primary);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .voice-time {
+      font-size: 0.67rem;
+      color: var(--text-muted);
+      margin-top: auto;
+    }
+
+    /* ── HERO SKELETON ── */
+    .hero-skeleton {
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--card);
+      padding: 2rem;
+      margin-bottom: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
     /* ── TABS ── */
     .tabs {
       display: flex;
@@ -340,9 +512,7 @@
       color: var(--text-muted);
       font-size: 0.9rem;
     }
-    .error-msg a {
-      color: var(--red);
-    }
+    .error-msg a { color: var(--red); }
 
     /* ── FOOTER ── */
     footer {
@@ -360,6 +530,9 @@
       header { padding: 0 1rem; }
       main { padding: 1rem 1rem 3rem; }
       .news-grid { grid-template-columns: 1fr; }
+      .hero-top, .hero-voices { padding: 1.2rem; }
+      .voices-grid { grid-template-columns: 1fr; }
+      .hero-read-btn { margin-left: 0; }
     }
   </style>
 </head>
@@ -393,6 +566,17 @@
     </div>
   </div>
 
+  <!-- HERO HEADLINE (skeleton shown while loading) -->
+  <div id="hero-container">
+    <div class="hero-skeleton" id="hero-skeleton">
+      <div class="skel skel-sm" style="width:80px;height:20px;border-radius:6px"></div>
+      <div class="skel skel-title" style="height:28px;width:92%"></div>
+      <div class="skel skel-title" style="height:28px;width:68%"></div>
+      <div class="skel skel-desc"></div>
+      <div class="skel skel-desc2"></div>
+    </div>
+  </div>
+
   <!-- TABS -->
   <div class="tabs" id="tabs"></div>
 
@@ -401,7 +585,7 @@
 </main>
 
 <footer>
-  News sourced from public RSS feeds via rss2json.com &nbsp;&middot;&nbsp; Auto-refreshes every 15 minutes
+  News sourced from public RSS feeds via rss2json.com &nbsp;&middot;&nbsp; Auto-refreshes every 10 minutes
 </footer>
 
 <script>
@@ -537,8 +721,6 @@ const CATEGORIES = [
   },
 ];
 
-// ── Get a FREE API key at https://rss2json.com/#rss_to_json_home_page ──
-// Paste it below to remove the 30-min cache delay on free tier.
 const RSS2JSON_KEY = 'w3jp6vv80sdwysi8idiwmv8q9gedsmlpktxxixii';
 const RSS2JSON = 'https://api.rss2json.com/v1/api.json?rss_url=';
 const ITEMS_PER_FEED = 8;
@@ -547,10 +729,9 @@ const REFRESH_INTERVAL = 10 * 60 * 1000; // 10 min
 // ────────────────────────────────────────────────
 // STATE
 // ────────────────────────────────────────────────
-let allArticles = [];       // { title, description, link, pubDate, source, tag, accent }
+let allArticles = [];
 let activeTab = 'all';
 let refreshTimer = null;
-let countdownTimer = null;
 let nextRefreshAt = null;
 
 // ────────────────────────────────────────────────
@@ -574,6 +755,95 @@ function updateCountdown() {
   document.getElementById('next-refresh').textContent = `Next: ${m}:${s}`;
 }
 setInterval(updateCountdown, 1000);
+
+// ────────────────────────────────────────────────
+// HERO HEADLINE
+// ────────────────────────────────────────────────
+function extractKeywords(title) {
+  const stop = new Set([
+    'the','a','an','in','on','at','to','of','and','or','is','are','was','were',
+    'for','with','this','that','as','from','by','it','its','be','has','have',
+    'had','will','would','could','should','not','but','about','after','before',
+    'over','than','more','also','their','they','he','she','we','you','our',
+    'his','her','into','up','new','says','said','after','over','amid',
+  ]);
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length > 3 && !stop.has(w));
+}
+
+function matchScore(title, keywords) {
+  const t = title.toLowerCase();
+  return keywords.reduce((sum, kw) => sum + (t.includes(kw) ? 1 : 0), 0);
+}
+
+function renderHero() {
+  const container = document.getElementById('hero-container');
+  if (!allArticles.length) return;
+
+  const lead = allArticles[0];
+  const keywords = extractKeywords(lead.title);
+
+  // Find related voices from other sources
+  const voices = allArticles
+    .filter(a => a.link !== lead.link)
+    .map(a => ({ ...a, score: matchScore(a.title, keywords) }))
+    .filter(a => a.score > 0)
+    .sort((a, b) => b.score - a.score || new Date(b.pubDate) - new Date(a.pubDate))
+    .slice(0, 6);
+
+  // Fallback: latest articles from different sources if no keyword match
+  const voiceList = voices.length >= 2 ? voices : allArticles
+    .filter(a => a.link !== lead.link)
+    .slice(0, 6);
+
+  const rawDesc = stripHtml(lead.description || '');
+  const desc = rawDesc.length > 10
+    ? rawDesc.slice(0, 340) + (rawDesc.length > 340 ? '…' : '')
+    : 'Click to read the full story at the source.';
+
+  container.innerHTML = `
+    <div class="hero-section">
+      <div class="hero-top">
+        <div class="hero-eyebrow">
+          <span class="hero-eyebrow-dot"></span>
+          Top Story
+        </div>
+        <a class="hero-headline" href="${lead.link}" target="_blank" rel="noopener noreferrer">
+          ${escHtml(lead.title)}
+        </a>
+        <p class="hero-desc">${escHtml(desc)}</p>
+        <div class="hero-meta">
+          <div class="hero-source-badge">
+            <span class="hero-source-dot" style="background:${lead.accent}"></span>
+            ${escHtml(lead.source)}
+          </div>
+          <span class="hero-time">${timeAgo(lead.pubDate)}</span>
+          <a class="hero-read-btn" href="${lead.link}" target="_blank" rel="noopener noreferrer">
+            Full Story &rsaquo;
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-voices">
+        <div class="voices-heading">Media Coverage &amp; Related Reports</div>
+        <div class="voices-grid">
+          ${voiceList.map(a => `
+            <a class="voice-card" href="${a.link}" target="_blank" rel="noopener noreferrer">
+              <div class="voice-source">
+                <span class="voice-dot" style="background:${a.accent}"></span>
+                ${escHtml(a.source)}
+              </div>
+              <div class="voice-title">${escHtml(a.title)}</div>
+              <div class="voice-time">${timeAgo(a.pubDate)}</div>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+    </div>`;
+}
 
 // ────────────────────────────────────────────────
 // TABS
@@ -611,7 +881,6 @@ function renderContent() {
   }
 
   if (activeTab === 'all') {
-    // grouped by category
     let html = '';
     CATEGORIES.filter(c => c.id !== 'all').forEach(cat => {
       const cats = articles.filter(a => a.catId === cat.id);
@@ -697,7 +966,6 @@ async function fetchAll() {
   results.forEach(r => {
     if (r.status === 'fulfilled') articles.push(...r.value);
   });
-  // dedupe by link
   const seen = new Set();
   return articles.filter(a => {
     if (seen.has(a.link)) return false;
@@ -720,11 +988,13 @@ async function refreshAll() {
       Could not load any feeds. This is usually due to the <strong>rss2json.com free-tier rate limit</strong>.<br><br>
       Fix: <a href="https://rss2json.com/#rss_to_json_home_page" target="_blank">Get a free API key</a> and paste it into <code>RSS2JSON_KEY</code> in the source code.
     </div>`;
+    document.getElementById('hero-container').innerHTML = '';
     btn.classList.remove('spinning');
     return;
   }
 
   updateTicker();
+  renderHero();
   renderTabs();
   renderContent();
   console.log(`[NewsHub] Loaded ${allArticles.length} articles at ${new Date().toLocaleTimeString()}`);
