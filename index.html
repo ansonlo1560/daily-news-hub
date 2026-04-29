@@ -480,11 +480,66 @@ const CATEGORIES = [
       { name: 'ESPN', url: 'https://www.espn.com/espn/rss/news', tag: 'ESPN' },
     ]
   },
+  {
+    id: 'politics',
+    label: 'Politics',
+    icon: '&#127963;',
+    accent: '#2980b9',
+    feeds: [
+      { name: 'BBC Politics', url: 'https://feeds.bbci.co.uk/news/politics/rss.xml', tag: 'BBC' },
+      { name: 'The Guardian Politics', url: 'https://www.theguardian.com/politics/rss', tag: 'Guardian' },
+      { name: 'Reuters Politics', url: 'https://feeds.reuters.com/reuters/politicsNews', tag: 'Reuters' },
+      { name: 'Politico', url: 'https://rss.politico.com/politics-news.xml', tag: 'Politico' },
+      { name: 'SCMP Politics', url: 'https://www.scmp.com/rss/5/feed', tag: 'SCMP' },
+    ]
+  },
+  {
+    id: 'war',
+    label: 'War & Conflict',
+    icon: '&#128481;',
+    accent: '#c0392b',
+    feeds: [
+      { name: 'BBC World', url: 'https://feeds.bbci.co.uk/news/world/rss.xml', tag: 'BBC' },
+      { name: 'Reuters World', url: 'https://feeds.reuters.com/Reuters/worldNews', tag: 'Reuters' },
+      { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml', tag: 'Al Jazeera' },
+      { name: 'Defense News', url: 'https://www.defensenews.com/arc/outboundfeeds/rss/', tag: 'Defense News' },
+      { name: 'War on the Rocks', url: 'https://warontherocks.com/feed/', tag: 'WOTR' },
+      { name: 'The Guardian World', url: 'https://www.theguardian.com/world/rss', tag: 'Guardian' },
+    ]
+  },
+  {
+    id: 'analysis',
+    label: 'Analysis',
+    icon: '&#128270;',
+    accent: '#16a085',
+    feeds: [
+      { name: 'The Economist', url: 'https://www.economist.com/asia/rss.xml', tag: 'Economist' },
+      { name: 'Foreign Affairs', url: 'https://www.foreignaffairs.com/rss.xml', tag: 'Foreign Affairs' },
+      { name: 'HK01', url: 'https://www.hk01.com/rss/index', tag: 'HK01' },
+      { name: 'SCMP Analysis', url: 'https://www.scmp.com/rss/4/feed', tag: 'SCMP' },
+      { name: 'The Atlantic', url: 'https://www.theatlantic.com/feed/all/', tag: 'Atlantic' },
+      { name: 'Foreign Policy', url: 'https://foreignpolicy.com/feed/', tag: 'FP' },
+    ]
+  },
+  {
+    id: 'press',
+    label: 'Western Press',
+    icon: '&#128240;',
+    accent: '#7f8c8d',
+    feeds: [
+      { name: 'The Times', url: 'https://www.thetimes.co.uk/rss/world', tag: 'The Times' },
+      { name: 'The Guardian', url: 'https://www.theguardian.com/international/rss', tag: 'Guardian' },
+      { name: 'The Independent', url: 'https://www.independent.co.uk/news/world/rss', tag: 'Independent' },
+      { name: 'Le Monde (EN)', url: 'https://www.lemonde.fr/en/rss/une.xml', tag: 'Le Monde' },
+      { name: 'Der Spiegel (EN)', url: 'https://www.spiegel.de/international/index.rss', tag: 'Spiegel' },
+      { name: 'NYT World', url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', tag: 'NYT' },
+    ]
+  },
 ];
 
 // ── Get a FREE API key at https://rss2json.com/#rss_to_json_home_page ──
 // Paste it below to remove the 30-min cache delay on free tier.
-const RSS2JSON_KEY = 'w3jp6vv80sdwysi8idiwmv8q9gedsmlpktxxixii';   // e.g. 'abcdef1234567890abcdef1234567890abcdef12'
+const RSS2JSON_KEY = 'w3jp6vv80sdwysi8idiwmv8q9gedsmlpktxxixii';
 const RSS2JSON = 'https://api.rss2json.com/v1/api.json?rss_url=';
 const ITEMS_PER_FEED = 8;
 const REFRESH_INTERVAL = 10 * 60 * 1000; // 10 min
