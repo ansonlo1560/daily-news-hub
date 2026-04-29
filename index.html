@@ -1026,25 +1026,34 @@ function skeletonCard() {
 // FETCH
 // ═══════════════════════════════════════════════
 async function fetchFeed(url, catId, accent, tag) {
-  // 使用 encodeURIComponent 避免 URL 參數出錯
   const api = `${RSS2JSON}${encodeURIComponent(url)}&api_key=${RSS2JSON_KEY}&count=${ITEMS_PER_FEED}`;
   
+  // 为每个请求创建超时控制器
+  const controller = new AbortController();
+  const timeoutId  = setTimeout(() => controller.abort(), 10_000); // 10 秒超时
+
   try {
-    const res = await fetch(api);
+    const res = await fetch(api, { signal: controller.signal });
+    clearTimeout(timeoutId); // 请求完成，清除定时器
     const data = await res.json();
     if (data.status === 'ok') {
       return data.items.map(item => ({
         ...item,
         catId,
         accent,
-        // 如果 API 沒給 tag，用我們定義的
+        tag: tag,                     // 补充 tag 字段，否则卡片标签会为空
         source: tag || data.feed.title || 'News',
-        // 提取乾淨的摘要
         description: stripHtml(item.description || item.content || '')
       }));
     }
   } catch (e) {
-    console.error(`Error fetching ${url}:`, e);
+    if (e.name === 'AbortError') {
+      console.warn(`请求超时: ${url}`);
+    } else {
+      console.error(`Error fetching ${url}:`, e);
+    }
+  } finally {
+    clearTimeout(timeoutId);          // 确保无论成功失败都清除定时器
   }
   return [];
 }
