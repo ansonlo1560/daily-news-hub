@@ -1095,28 +1095,28 @@ function skeletonCard() {
 // ═══════════════════════════════════════════════
 // FETCH
 // ═══════════════════════════════════════════════
-async function fetchFeed(feedCfg, catId, accent) {
-  let url = RSS2JSON + encodeURIComponent(feedCfg.url) + `&count=${ITEMS_PER_FEED}`;
-  if (RSS2JSON_KEY) url += `&api_key=${RSS2JSON_KEY}`;
+async function fetchFeed(url, catId, accent, tag) {
+  // 使用 encodeURIComponent 避免 URL 參數出錯
+  const api = `${RSS2JSON}${encodeURIComponent(url)}&api_key=${RSS2JSON_KEY}&count=${ITEMS_PER_FEED}`;
+  
   try {
-    const r    = await fetch(url, { signal: AbortSignal.timeout(12000) });
-    if (!r.ok) { console.warn(`[${feedCfg.name}] HTTP ${r.status}`); return []; }
-    const data = await r.json();
-    if (data.status !== 'ok') { console.warn(`[${feedCfg.name}] rss2json:`, data.message); return []; }
-    return (data.items || []).map(item => ({
-      title: item.title || '',
-      description: item.description || item.content || '',
-      link: item.link || '#',
-      pubDate: item.pubDate || new Date().toISOString(),
-      source: feedCfg.name,
-      tag: feedCfg.tag,
-      catId,
-      accent,
-    }));
-  } catch(e) {
-    console.warn(`[${feedCfg.name}] fetch error:`, e.message);
-    return [];
+    const res = await fetch(api);
+    const data = await res.json();
+    if (data.status === 'ok') {
+      return data.items.map(item => ({
+        ...item,
+        catId,
+        accent,
+        // 如果 API 沒給 tag，用我們定義的
+        source: tag || data.feed.title || 'News',
+        // 提取乾淨的摘要
+        description: stripHtml(item.description || item.content || '')
+      }));
+    }
+  } catch (e) {
+    console.error(`Error fetching ${url}:`, e);
   }
+  return [];
 }
 
 // Detect if a string is mostly Chinese/Japanese/Korean characters
@@ -1159,23 +1159,54 @@ async function fetchAll() {
   const lang = currentLang;
   let allFetched = [];
 
-  // 🛠️ 核心機制 1：分批請求 (Batching)
-  // 每次最多發送 3 個 HTTP 請求，並且間隔 400 毫秒，避免被 rss2json 視為惡意攻擊
-  const fetchInBatches = async (feeds, catId, accent) => {
-    let results = [];
-    for (let i = 0; i < feeds.length; i += 3) {
-      const batch = feeds.slice(i, i + 3);
-      const promises = batch.map(feed => fetchFeed(feed, catId, accent));
-      const batchResults = await Promise.allSettled(promises);
-      batchResults.forEach(r => { if (r.status === 'fulfilled') results.push(...r.value); });
-      
-      // 如果還有下一批，就稍微等待一下
-      if (i + 3 < feeds.length) {
-        await new Promise(res => setTimeout(res, 400)); 
+  for (const cat of CATEGORIES.filter(c => c.id !== 'all')) {
+    let catArticles = [];
+
+    if (lang === 'zh') {
+      // 🚀 步驟 1：全力抓取中文來源
+      if (cat.feeds_zh && cat.feeds_zh.length > 0) {
+        const zhPromises = cat.feeds_zh.map(f => fetchFeed(f.url, cat.id, cat.accent, f.tag));
+        const zhResults = await Promise.allSettled(zhPromises);
+        zhResults.forEach(r => { if(r.status === 'fulfilled') catArticles.push(...r.value); });
       }
+
+      // 🚀 步驟 2：判斷是否需要英文補貼 (低於 4 篇則啟動備援)
+      if (catArticles.length < 4 && cat.feeds_en) {
+        console.log(`[${cat.id}] 中文資料不足，正在抓取英文來源補貼...`);
+        const enPromises = cat.feeds_en.map(f => fetchFeed(f.url, cat.id, cat.accent, f.tag));
+        const enResults = await Promise.allSettled(enPromises);
+        enResults.forEach(r => { if(r.status === 'fulfilled') catArticles.push(...r.value); });
+      }
+    } else {
+      // 英文模式：直接抓英文
+      const enPromises = cat.feeds_en.map(f => fetchFeed(f.url, cat.id, cat.accent, f.tag));
+      const enResults = await Promise.allSettled(enPromises);
+      enResults.forEach(r => { if(r.status === 'fulfilled') catArticles.push(...r.value); });
     }
-    return results;
-  };
+
+    allFetched.push(...catArticles);
+  }
+
+  // 去重與排序
+  const seen = new Set();
+  const unique = allFetched.filter(a => {
+    const key = a.link || a.title;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+  // 🚀 步驟 3：如果是在中文模式，翻譯那些「英文原文」的新聞
+  if (lang === 'zh') {
+    // 篩選出標題不含中文的文章進行翻譯
+    const toTranslate = unique.filter(a => !/[\u4e00-\u9fa5]/.test(a.title));
+    if (toTranslate.length > 0) {
+      await translateArticles(toTranslate, 20); // 這裡需確保你有 translateArticles 函數
+    }
+  }
+
+  return unique;
+}
 
   // 逐個分類進行處理
   for (const cat of CATEGORIES.filter(c => c.id !== 'all')) {
