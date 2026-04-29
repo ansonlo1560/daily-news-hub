@@ -709,78 +709,140 @@ const I18N = {
 
 // ═══════════════════════════════════════════════
 // SOURCES CONFIGURATION
+// feeds_en = English sources, feeds_zh = Chinese sources
 // ═══════════════════════════════════════════════
 const CATEGORIES = [
   { id: 'all',      icon: '&#9679;',            accent: '#2ecc71' },
+
   { id: 'hk',       icon: '&#127752;',           accent: '#e8523a',
-    feeds: [
-      { name: 'RTHK News', url: 'https://rthk.hk/rss/news.xml', tag: 'RTHK' },
-      { name: 'SCMP HK',   url: 'https://www.scmp.com/rss/91/feed', tag: 'SCMP' },
-      { name: 'HK01',      url: 'https://www.hk01.com/rss/index', tag: 'HK01' },
+    feeds_en: [
+      { name: 'RTHK News',  url: 'https://rthk.hk/rss/news.xml',          tag: 'RTHK' },
+      { name: 'SCMP HK',    url: 'https://www.scmp.com/rss/91/feed',       tag: 'SCMP' },
+      { name: 'HK01',       url: 'https://www.hk01.com/rss/index',         tag: 'HK01' },
+    ],
+    feeds_zh: [
+      { name: 'RTHK 中文',   url: 'https://rthk.hk/rss/chinese_news.xml',  tag: 'RTHK 中文' },
+      { name: '香港01',      url: 'https://www.hk01.com/rss/index',         tag: '香港01' },
+      { name: '星島日報',    url: 'https://www.singtaousa.com/feed/',        tag: '星島' },
     ]},
+
   { id: 'cn',       icon: '&#127464;&#127475;',  accent: '#c0392b',
-    feeds: [
+    feeds_en: [
       { name: 'Xinhua English', url: 'https://www.xinhuanet.com/english/rss/chinalatestnews.xml', tag: 'Xinhua' },
-      { name: 'China Daily',    url: 'https://www.chinadaily.com.cn/rss/china_rss.xml', tag: 'China Daily' },
-      { name: 'Global Times',   url: 'https://www.globaltimes.cn/rss/outbrain.xml', tag: 'Global Times' },
+      { name: 'China Daily',    url: 'https://www.chinadaily.com.cn/rss/china_rss.xml',           tag: 'China Daily' },
+      { name: 'Global Times',   url: 'https://www.globaltimes.cn/rss/outbrain.xml',               tag: 'Global Times' },
+    ],
+    feeds_zh: [
+      { name: '新華社',     url: 'https://www.xinhuanet.com/rss/news.xml',                tag: '新華社' },
+      { name: '人民日報',   url: 'https://rsshub.app/peopledaily/paper',                   tag: '人民日報' },
+      { name: '環球時報',   url: 'https://www.huanqiu.com/rss/news.xml',                   tag: '環球時報' },
     ]},
+
   { id: 'world',    icon: '&#127760;',           accent: '#3a7bd5',
-    feeds: [
-      { name: 'BBC World', url: 'https://feeds.bbci.co.uk/news/world/rss.xml', tag: 'BBC' },
-      { name: 'Reuters',   url: 'https://feeds.reuters.com/reuters/topNews', tag: 'Reuters' },
-      { name: 'AP News',   url: 'https://rsshub.app/apnews/topics/apf-topnews', tag: 'AP' },
+    feeds_en: [
+      { name: 'BBC World', url: 'https://feeds.bbci.co.uk/news/world/rss.xml',          tag: 'BBC' },
+      { name: 'Reuters',   url: 'https://feeds.reuters.com/reuters/topNews',             tag: 'Reuters' },
+      { name: 'AP News',   url: 'https://rsshub.app/apnews/topics/apf-topnews',         tag: 'AP' },
+    ],
+    feeds_zh: [
+      { name: 'BBC 中文',   url: 'https://feeds.bbci.co.uk/zhongwen/trad/rss.xml',       tag: 'BBC 中文' },
+      { name: '德國之聲',   url: 'https://rss.dw.com/rdf/rss-zho-all',                   tag: 'DW 中文' },
+      { name: '法廣中文',   url: 'https://www.rfi.fr/tw/rss',                             tag: '法廣' },
     ]},
+
   { id: 'tech',     icon: '&#128187;',           accent: '#27ae8f',
-    feeds: [
-      { name: 'TechCrunch',  url: 'https://techcrunch.com/feed/', tag: 'TechCrunch' },
-      { name: 'The Verge',   url: 'https://www.theverge.com/rss/index.xml', tag: 'The Verge' },
-      { name: 'Ars Technica',url: 'https://feeds.arstechnica.com/arstechnica/index', tag: 'Ars Technica' },
+    feeds_en: [
+      { name: 'TechCrunch',   url: 'https://techcrunch.com/feed/',                      tag: 'TechCrunch' },
+      { name: 'The Verge',    url: 'https://www.theverge.com/rss/index.xml',             tag: 'The Verge' },
+      { name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/index',    tag: 'Ars Technica' },
+    ],
+    feeds_zh: [
+      { name: '36氪',        url: 'https://36kr.com/feed',                               tag: '36氪' },
+      { name: '科技新報',    url: 'https://technews.tw/feed/',                            tag: '科技新報' },
+      { name: '癮科技',      url: 'https://www.engadget.com/rss-zh-tw.xml',               tag: '癮科技' },
     ]},
+
   { id: 'finance',  icon: '&#128200;',           accent: '#d4a017',
-    feeds: [
-      { name: 'FT Markets',  url: 'https://www.ft.com/rss/home', tag: 'FT' },
-      { name: 'Bloomberg',   url: 'https://feeds.bloomberg.com/markets/news.rss', tag: 'Bloomberg' },
-      { name: 'WSJ Markets', url: 'https://feeds.a.dj.com/rss/RSSMarketsMain.xml', tag: 'WSJ' },
+    feeds_en: [
+      { name: 'FT Markets',  url: 'https://www.ft.com/rss/home',                        tag: 'FT' },
+      { name: 'Bloomberg',   url: 'https://feeds.bloomberg.com/markets/news.rss',        tag: 'Bloomberg' },
+      { name: 'WSJ Markets', url: 'https://feeds.a.dj.com/rss/RSSMarketsMain.xml',      tag: 'WSJ' },
+    ],
+    feeds_zh: [
+      { name: '鉅亨網',     url: 'https://www.cnyes.com/rss/cat/headline',               tag: '鉅亨' },
+      { name: '財訊',       url: 'https://www.wealth.com.tw/rss',                        tag: '財訊' },
+      { name: '經濟日報',   url: 'https://money.udn.com/rssfeed/news/2/6649?ch=money',   tag: '經濟日報' },
     ]},
+
   { id: 'sport',    icon: '&#9917;',             accent: '#8e44ad',
-    feeds: [
-      { name: 'BBC Sport', url: 'https://feeds.bbci.co.uk/sport/rss.xml', tag: 'BBC Sport' },
-      { name: 'ESPN',      url: 'https://www.espn.com/espn/rss/news', tag: 'ESPN' },
+    feeds_en: [
+      { name: 'BBC Sport', url: 'https://feeds.bbci.co.uk/sport/rss.xml',               tag: 'BBC Sport' },
+      { name: 'ESPN',      url: 'https://www.espn.com/espn/rss/news',                   tag: 'ESPN' },
+    ],
+    feeds_zh: [
+      { name: '運動視界',   url: 'https://www.sportsv.net/feed',                         tag: '運動視界' },
+      { name: '體育署',     url: 'https://www.sa.gov.tw/rss/rss.aspx?SectionID=1',       tag: '體育署' },
     ]},
+
   { id: 'politics', icon: '&#127963;',           accent: '#2980b9',
-    feeds: [
-      { name: 'BBC Politics',          url: 'https://feeds.bbci.co.uk/news/politics/rss.xml', tag: 'BBC' },
-      { name: 'The Guardian Politics', url: 'https://www.theguardian.com/politics/rss', tag: 'Guardian' },
-      { name: 'Reuters Politics',      url: 'https://feeds.reuters.com/reuters/politicsNews', tag: 'Reuters' },
-      { name: 'Politico',              url: 'https://rss.politico.com/politics-news.xml', tag: 'Politico' },
-      { name: 'SCMP Politics',         url: 'https://www.scmp.com/rss/5/feed', tag: 'SCMP' },
+    feeds_en: [
+      { name: 'BBC Politics',          url: 'https://feeds.bbci.co.uk/news/politics/rss.xml',      tag: 'BBC' },
+      { name: 'The Guardian Politics', url: 'https://www.theguardian.com/politics/rss',             tag: 'Guardian' },
+      { name: 'Reuters Politics',      url: 'https://feeds.reuters.com/reuters/politicsNews',       tag: 'Reuters' },
+      { name: 'Politico',              url: 'https://rss.politico.com/politics-news.xml',           tag: 'Politico' },
+      { name: 'SCMP Politics',         url: 'https://www.scmp.com/rss/5/feed',                      tag: 'SCMP' },
+    ],
+    feeds_zh: [
+      { name: 'BBC 中文政治', url: 'https://feeds.bbci.co.uk/zhongwen/trad/rss.xml',    tag: 'BBC 中文' },
+      { name: '德國之聲',     url: 'https://rss.dw.com/rdf/rss-zho-all',                tag: 'DW 中文' },
+      { name: '法廣中文',     url: 'https://www.rfi.fr/tw/rss',                          tag: '法廣' },
+      { name: '自由亞洲電台', url: 'https://www.rfa.org/mandarin/rss2.xml',              tag: 'RFA' },
     ]},
+
   { id: 'war',      icon: '&#128481;',           accent: '#c0392b',
-    feeds: [
-      { name: 'BBC World',        url: 'https://feeds.bbci.co.uk/news/world/rss.xml', tag: 'BBC' },
-      { name: 'Reuters World',    url: 'https://feeds.reuters.com/Reuters/worldNews', tag: 'Reuters' },
-      { name: 'Al Jazeera',       url: 'https://www.aljazeera.com/xml/rss/all.xml', tag: 'Al Jazeera' },
+    feeds_en: [
+      { name: 'BBC World',        url: 'https://feeds.bbci.co.uk/news/world/rss.xml',   tag: 'BBC' },
+      { name: 'Reuters World',    url: 'https://feeds.reuters.com/Reuters/worldNews',   tag: 'Reuters' },
+      { name: 'Al Jazeera',       url: 'https://www.aljazeera.com/xml/rss/all.xml',     tag: 'Al Jazeera' },
       { name: 'Defense News',     url: 'https://www.defensenews.com/arc/outboundfeeds/rss/', tag: 'Defense News' },
-      { name: 'War on the Rocks', url: 'https://warontherocks.com/feed/', tag: 'WOTR' },
-      { name: 'Guardian World',   url: 'https://www.theguardian.com/world/rss', tag: 'Guardian' },
+      { name: 'War on the Rocks', url: 'https://warontherocks.com/feed/',               tag: 'WOTR' },
+    ],
+    feeds_zh: [
+      { name: 'BBC 中文',   url: 'https://feeds.bbci.co.uk/zhongwen/trad/rss.xml',      tag: 'BBC 中文' },
+      { name: '德國之聲',   url: 'https://rss.dw.com/rdf/rss-zho-all',                  tag: 'DW 中文' },
+      { name: '自由亞洲電台',url: 'https://www.rfa.org/mandarin/rss2.xml',              tag: 'RFA' },
+      { name: '法廣中文',   url: 'https://www.rfi.fr/tw/rss',                            tag: '法廣' },
     ]},
+
   { id: 'analysis', icon: '&#128270;',           accent: '#16a085',
-    feeds: [
-      { name: 'The Economist',  url: 'https://www.economist.com/asia/rss.xml', tag: 'Economist' },
-      { name: 'Foreign Affairs',url: 'https://www.foreignaffairs.com/rss.xml', tag: 'Foreign Affairs' },
-      { name: 'HK01',           url: 'https://www.hk01.com/rss/index', tag: 'HK01' },
-      { name: 'SCMP Analysis',  url: 'https://www.scmp.com/rss/4/feed', tag: 'SCMP' },
-      { name: 'The Atlantic',   url: 'https://www.theatlantic.com/feed/all/', tag: 'Atlantic' },
-      { name: 'Foreign Policy', url: 'https://foreignpolicy.com/feed/', tag: 'FP' },
+    feeds_en: [
+      { name: 'The Economist',   url: 'https://www.economist.com/asia/rss.xml',         tag: 'Economist' },
+      { name: 'Foreign Affairs', url: 'https://www.foreignaffairs.com/rss.xml',         tag: 'Foreign Affairs' },
+      { name: 'The Atlantic',    url: 'https://www.theatlantic.com/feed/all/',           tag: 'Atlantic' },
+      { name: 'Foreign Policy',  url: 'https://foreignpolicy.com/feed/',                tag: 'FP' },
+      { name: 'SCMP Analysis',   url: 'https://www.scmp.com/rss/4/feed',                tag: 'SCMP' },
+    ],
+    feeds_zh: [
+      { name: '香港01',     url: 'https://www.hk01.com/rss/index',                      tag: '香港01' },
+      { name: '端傳媒',     url: 'https://theinitium.com/feed/latest/zh-hans',           tag: '端傳媒' },
+      { name: '聯合報',     url: 'https://udn.com/rssfeed/news/2/0?ch=news',             tag: '聯合報' },
+      { name: 'DW 中文評論', url: 'https://rss.dw.com/rdf/rss-zho-all',                 tag: 'DW 中文' },
     ]},
+
   { id: 'press',    icon: '&#128240;',           accent: '#7f8c8d',
-    feeds: [
-      { name: 'The Times',     url: 'https://www.thetimes.co.uk/rss/world', tag: 'The Times' },
-      { name: 'The Guardian',  url: 'https://www.theguardian.com/international/rss', tag: 'Guardian' },
-      { name: 'Independent',   url: 'https://www.independent.co.uk/news/world/rss', tag: 'Independent' },
-      { name: 'Le Monde (EN)', url: 'https://www.lemonde.fr/en/rss/une.xml', tag: 'Le Monde' },
-      { name: 'Der Spiegel',   url: 'https://www.spiegel.de/international/index.rss', tag: 'Spiegel' },
+    feeds_en: [
+      { name: 'The Times',     url: 'https://www.thetimes.co.uk/rss/world',             tag: 'The Times' },
+      { name: 'The Guardian',  url: 'https://www.theguardian.com/international/rss',    tag: 'Guardian' },
+      { name: 'Independent',   url: 'https://www.independent.co.uk/news/world/rss',     tag: 'Independent' },
+      { name: 'Le Monde (EN)', url: 'https://www.lemonde.fr/en/rss/une.xml',            tag: 'Le Monde' },
+      { name: 'Der Spiegel',   url: 'https://www.spiegel.de/international/index.rss',   tag: 'Spiegel' },
       { name: 'NYT World',     url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', tag: 'NYT' },
+    ],
+    feeds_zh: [
+      { name: 'BBC 中文',   url: 'https://feeds.bbci.co.uk/zhongwen/trad/rss.xml',      tag: 'BBC 中文' },
+      { name: '德國之聲',   url: 'https://rss.dw.com/rdf/rss-zho-all',                  tag: 'DW 中文' },
+      { name: '法廣中文',   url: 'https://www.rfi.fr/tw/rss',                            tag: '法廣' },
+      { name: '美國之音',   url: 'https://www.voachinese.com/api/z-mqiupme-op_oes',      tag: 'VOA 中文' },
     ]},
 ];
 
@@ -830,14 +892,14 @@ function toggleTheme() {
 // LANGUAGE
 // ═══════════════════════════════════════════════
 function setLang(lang) {
+  if (lang === currentLang) return;
   currentLang = lang;
   document.getElementById('lang-zh-btn').classList.toggle('active-lang', lang === 'zh');
   document.getElementById('lang-en-btn').classList.toggle('active-lang', lang === 'en');
   applyStaticStrings();
-  renderHero();
-  renderTabs();
-  renderContent();
   localStorage.setItem('lang', lang);
+  // Re-fetch with the new language's sources
+  refreshAll();
 }
 
 function applyStaticStrings() {
@@ -1058,19 +1120,64 @@ async function fetchFeed(feedCfg, catId, accent) {
   }
 }
 
+// Detect if a string is mostly Chinese/Japanese/Korean characters
+function isCJK(str) {
+  const cjk = (str.match(/[\u4e00-\u9fff\u3400-\u4dbf\u3040-\u30ff]/g) || []).length;
+  return cjk / Math.max(str.replace(/\s/g,'').length, 1) > 0.25;
+}
+
+// Translate a batch of titles via MyMemory free API (no key needed, 5000 chars/day)
+async function translateBatch(titles) {
+  const results = new Array(titles.length).fill(null);
+  // Group into chunks of 10 to avoid overloading
+  const CHUNK = 10;
+  for (let i = 0; i < titles.length; i += CHUNK) {
+    const chunk = titles.slice(i, i + CHUNK);
+    await Promise.allSettled(chunk.map(async (title, j) => {
+      if (!title || isCJK(title)) { results[i + j] = title; return; }
+      try {
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(title.slice(0,400))}&langpair=en|zh-TW`;
+        const r   = await fetch(url, { signal: AbortSignal.timeout(6000) });
+        const d   = await r.json();
+        const tr  = d?.responseData?.translatedText;
+        results[i + j] = (tr && tr !== title && !tr.toLowerCase().includes('mymemory')) ? tr : title;
+      } catch { results[i + j] = title; }
+    }));
+  }
+  return results;
+}
+
 async function fetchAll() {
+  const lang     = currentLang;
+  const feedKey  = lang === 'zh' ? 'feeds_zh' : 'feeds_en';
   const promises = [];
   CATEGORIES.filter(c => c.id !== 'all').forEach(cat => {
-    (cat.feeds || []).forEach(feed => promises.push(fetchFeed(feed, cat.id, cat.accent)));
+    // Use language-specific feeds; fallback to the other if missing
+    const feeds = cat[feedKey] || cat['feeds_en'] || cat['feeds_zh'] || [];
+    feeds.forEach(feed => promises.push(fetchFeed(feed, cat.id, cat.accent)));
   });
   const results  = await Promise.allSettled(promises);
   const articles = [];
   results.forEach(r => { if (r.status === 'fulfilled') articles.push(...r.value); });
   const seen = new Set();
-  return articles.filter(a => {
+  const unique = articles.filter(a => {
     if (seen.has(a.link)) return false;
     seen.add(a.link); return true;
   }).sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+  // In zh mode, translate titles that are still in English
+  if (lang === 'zh') {
+    const needTranslate = unique.map(a => isCJK(a.title) ? null : a.title);
+    const hasWork = needTranslate.some(t => t !== null);
+    if (hasWork) {
+      const translated = await translateBatch(needTranslate);
+      unique.forEach((a, i) => {
+        if (translated[i] && translated[i] !== a.title) a.title = translated[i];
+      });
+    }
+  }
+
+  return unique;
 }
 
 async function refreshAll() {
