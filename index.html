@@ -711,21 +711,29 @@ const I18N = {
 // SOURCES CONFIGURATION
 // feeds_en = English sources, feeds_zh = Chinese sources
 // ═══════════════════════════════════════════════
+// RSSHub public instance — handles encoding, dynamic loading & anti-scraping
+// for Chinese-language media (HK/Macau/TW/SG/Mainland)
+const HUB = 'https://rsshub.app';
+
 const CATEGORIES = [
   { id: 'all',      icon: '&#9679;',            accent: '#2ecc71' },
 
+  // ── 香港 ──────────────────────────────────────
   { id: 'hk',       icon: '&#127752;',           accent: '#e8523a',
     feeds_en: [
       { name: 'RTHK News',  url: 'https://rthk.hk/rss/news.xml',          tag: 'RTHK' },
       { name: 'SCMP HK',    url: 'https://www.scmp.com/rss/91/feed',       tag: 'SCMP' },
-      { name: 'HK01',       url: 'https://www.hk01.com/rss/index',         tag: 'HK01' },
+      { name: 'HK01',       url: `${HUB}/hk01/breaking-news`,              tag: 'HK01' },
     ],
     feeds_zh: [
-      { name: 'RTHK 中文',   url: 'https://rthk.hk/rss/chinese_news.xml',  tag: 'RTHK 中文' },
-      { name: '香港01',      url: 'https://www.hk01.com/rss/index',         tag: '香港01' },
-      { name: '星島日報',    url: 'https://www.singtaousa.com/feed/',        tag: '星島' },
+      { name: 'RTHK 中文',  url: 'https://rthk.hk/rss/chinese_news.xml',  tag: 'RTHK' },
+      { name: '香港01',     url: `${HUB}/hk01/breaking-news`,              tag: '香港01' },
+      { name: '明報即時',   url: `${HUB}/mingpao/instant/port`,            tag: '明報' },
+      { name: '星島日報',   url: `${HUB}/singtao/latest/hk`,               tag: '星島' },
+      { name: '東網',       url: `${HUB}/on/latest`,                       tag: '東網' },
     ]},
 
+  // ── 中國 ──────────────────────────────────────
   { id: 'cn',       icon: '&#127464;&#127475;',  accent: '#c0392b',
     feeds_en: [
       { name: 'Xinhua English', url: 'https://www.xinhuanet.com/english/rss/chinalatestnews.xml', tag: 'Xinhua' },
@@ -733,72 +741,83 @@ const CATEGORIES = [
       { name: 'Global Times',   url: 'https://www.globaltimes.cn/rss/outbrain.xml',               tag: 'Global Times' },
     ],
     feeds_zh: [
-      { name: '新華社',     url: 'https://www.xinhuanet.com/rss/news.xml',                tag: '新華社' },
-      { name: '人民日報',   url: 'https://rsshub.app/peopledaily/paper',                   tag: '人民日報' },
-      { name: '環球時報',   url: 'https://www.huanqiu.com/rss/news.xml',                   tag: '環球時報' },
+      { name: '人民日報',   url: `${HUB}/peopledaily/paper`,               tag: '人民日報' },
+      { name: '新華社',     url: `${HUB}/xinhua/world`,                    tag: '新華社' },
+      { name: '環球時報',   url: `${HUB}/huanqiu/index`,                   tag: '環球時報' },
+      { name: '財新網',     url: `${HUB}/caixin/latest`,                   tag: '財新' },
     ]},
 
+  // ── 世界 ──────────────────────────────────────
   { id: 'world',    icon: '&#127760;',           accent: '#3a7bd5',
     feeds_en: [
-      { name: 'BBC World', url: 'https://feeds.bbci.co.uk/news/world/rss.xml',          tag: 'BBC' },
-      { name: 'Reuters',   url: 'https://feeds.reuters.com/reuters/topNews',             tag: 'Reuters' },
-      { name: 'AP News',   url: 'https://rsshub.app/apnews/topics/apf-topnews',         tag: 'AP' },
+      { name: 'BBC World', url: 'https://feeds.bbci.co.uk/news/world/rss.xml', tag: 'BBC' },
+      { name: 'Reuters',   url: 'https://feeds.reuters.com/reuters/topNews',   tag: 'Reuters' },
+      { name: 'AP News',   url: `${HUB}/apnews/topics/apf-topnews`,           tag: 'AP' },
     ],
     feeds_zh: [
-      { name: 'BBC 中文',   url: 'https://feeds.bbci.co.uk/zhongwen/trad/rss.xml',       tag: 'BBC 中文' },
-      { name: '德國之聲',   url: 'https://rss.dw.com/rdf/rss-zho-all',                   tag: 'DW 中文' },
-      { name: '法廣中文',   url: 'https://www.rfi.fr/tw/rss',                             tag: '法廣' },
+      { name: 'BBC 中文',  url: 'https://feeds.bbci.co.uk/zhongwen/trad/rss.xml', tag: 'BBC 中文' },
+      { name: '德國之聲',  url: `${HUB}/dw/zh`,                               tag: 'DW 中文' },
+      { name: '法廣中文',  url: `${HUB}/rfi/zh/radiofrance`,                  tag: '法廣' },
+      { name: '聯合新聞網',url: `${HUB}/udn/news/cate/2/global`,              tag: '聯合報' },
     ]},
 
+  // ── 科技 ──────────────────────────────────────
   { id: 'tech',     icon: '&#128187;',           accent: '#27ae8f',
     feeds_en: [
-      { name: 'TechCrunch',   url: 'https://techcrunch.com/feed/',                      tag: 'TechCrunch' },
-      { name: 'The Verge',    url: 'https://www.theverge.com/rss/index.xml',             tag: 'The Verge' },
-      { name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/index',    tag: 'Ars Technica' },
+      { name: 'TechCrunch',   url: 'https://techcrunch.com/feed/',           tag: 'TechCrunch' },
+      { name: 'The Verge',    url: 'https://www.theverge.com/rss/index.xml', tag: 'The Verge' },
+      { name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/index', tag: 'Ars Technica' },
     ],
     feeds_zh: [
-      { name: '36氪',        url: 'https://36kr.com/feed',                               tag: '36氪' },
-      { name: '科技新報',    url: 'https://technews.tw/feed/',                            tag: '科技新報' },
-      { name: '癮科技',      url: 'https://www.engadget.com/rss-zh-tw.xml',               tag: '癮科技' },
+      { name: '36氪',        url: `${HUB}/36kr/news/latest`,                 tag: '36氪' },
+      { name: '科技新報',    url: `${HUB}/technews/tw`,                      tag: '科技新報' },
+      { name: '少數派',      url: `${HUB}/sspai/index`,                      tag: '少數派' },
+      { name: 'IT之家',      url: `${HUB}/ithome/index`,                     tag: 'IT之家' },
     ]},
 
+  // ── 財經 ──────────────────────────────────────
   { id: 'finance',  icon: '&#128200;',           accent: '#d4a017',
     feeds_en: [
-      { name: 'FT Markets',  url: 'https://www.ft.com/rss/home',                        tag: 'FT' },
-      { name: 'Bloomberg',   url: 'https://feeds.bloomberg.com/markets/news.rss',        tag: 'Bloomberg' },
-      { name: 'WSJ Markets', url: 'https://feeds.a.dj.com/rss/RSSMarketsMain.xml',      tag: 'WSJ' },
+      { name: 'FT Markets',  url: 'https://www.ft.com/rss/home',             tag: 'FT' },
+      { name: 'Bloomberg',   url: 'https://feeds.bloomberg.com/markets/news.rss', tag: 'Bloomberg' },
+      { name: 'WSJ Markets', url: 'https://feeds.a.dj.com/rss/RSSMarketsMain.xml', tag: 'WSJ' },
     ],
     feeds_zh: [
-      { name: '鉅亨網',     url: 'https://www.cnyes.com/rss/cat/headline',               tag: '鉅亨' },
-      { name: '財訊',       url: 'https://www.wealth.com.tw/rss',                        tag: '財訊' },
-      { name: '經濟日報',   url: 'https://money.udn.com/rssfeed/news/2/6649?ch=money',   tag: '經濟日報' },
+      { name: '鉅亨網',     url: `${HUB}/cnyes/news/id/tw_stock`,            tag: '鉅亨' },
+      { name: '經濟日報',   url: `${HUB}/udn/news/cate/2/money`,             tag: '經濟日報' },
+      { name: '財新網',     url: `${HUB}/caixin/finance`,                    tag: '財新' },
+      { name: '信報',       url: `${HUB}/hkej/index`,                        tag: '信報' },
     ]},
 
+  // ── 體育 ──────────────────────────────────────
   { id: 'sport',    icon: '&#9917;',             accent: '#8e44ad',
     feeds_en: [
-      { name: 'BBC Sport', url: 'https://feeds.bbci.co.uk/sport/rss.xml',               tag: 'BBC Sport' },
-      { name: 'ESPN',      url: 'https://www.espn.com/espn/rss/news',                   tag: 'ESPN' },
+      { name: 'BBC Sport', url: 'https://feeds.bbci.co.uk/sport/rss.xml',    tag: 'BBC Sport' },
+      { name: 'ESPN',      url: 'https://www.espn.com/espn/rss/news',        tag: 'ESPN' },
     ],
     feeds_zh: [
-      { name: '運動視界',   url: 'https://www.sportsv.net/feed',                         tag: '運動視界' },
-      { name: '體育署',     url: 'https://www.sa.gov.tw/rss/rss.aspx?SectionID=1',       tag: '體育署' },
+      { name: '運動視界',  url: `${HUB}/sportsv/index`,                      tag: '運動視界' },
+      { name: '虎撲體育',  url: `${HUB}/hupu/news`,                          tag: '虎撲' },
     ]},
 
+  // ── 政治 ──────────────────────────────────────
   { id: 'politics', icon: '&#127963;',           accent: '#2980b9',
     feeds_en: [
-      { name: 'BBC Politics',          url: 'https://feeds.bbci.co.uk/news/politics/rss.xml',      tag: 'BBC' },
-      { name: 'The Guardian Politics', url: 'https://www.theguardian.com/politics/rss',             tag: 'Guardian' },
-      { name: 'Reuters Politics',      url: 'https://feeds.reuters.com/reuters/politicsNews',       tag: 'Reuters' },
-      { name: 'Politico',              url: 'https://rss.politico.com/politics-news.xml',           tag: 'Politico' },
-      { name: 'SCMP Politics',         url: 'https://www.scmp.com/rss/5/feed',                      tag: 'SCMP' },
+      { name: 'BBC Politics',    url: 'https://feeds.bbci.co.uk/news/politics/rss.xml', tag: 'BBC' },
+      { name: 'Guardian Politics',url: 'https://www.theguardian.com/politics/rss',      tag: 'Guardian' },
+      { name: 'Reuters Politics', url: 'https://feeds.reuters.com/reuters/politicsNews', tag: 'Reuters' },
+      { name: 'Politico',         url: 'https://rss.politico.com/politics-news.xml',    tag: 'Politico' },
+      { name: 'SCMP Politics',    url: 'https://www.scmp.com/rss/5/feed',               tag: 'SCMP' },
     ],
     feeds_zh: [
-      { name: 'BBC 中文政治', url: 'https://feeds.bbci.co.uk/zhongwen/trad/rss.xml',    tag: 'BBC 中文' },
-      { name: '德國之聲',     url: 'https://rss.dw.com/rdf/rss-zho-all',                tag: 'DW 中文' },
-      { name: '法廣中文',     url: 'https://www.rfi.fr/tw/rss',                          tag: '法廣' },
-      { name: '自由亞洲電台', url: 'https://www.rfa.org/mandarin/rss2.xml',              tag: 'RFA' },
+      { name: 'BBC 中文',  url: 'https://feeds.bbci.co.uk/zhongwen/trad/rss.xml', tag: 'BBC 中文' },
+      { name: '德國之聲',  url: `${HUB}/dw/zh`,                               tag: 'DW 中文' },
+      { name: '法廣中文',  url: `${HUB}/rfi/zh/radiofrance`,                  tag: '法廣' },
+      { name: '自由亞洲',  url: `${HUB}/rfa/zh`,                              tag: 'RFA' },
+      { name: '美國之音',  url: `${HUB}/voachinese/index`,                    tag: 'VOA 中文' },
     ]},
 
+  // ── 戰爭衝突 ──────────────────────────────────
   { id: 'war',      icon: '&#128481;',           accent: '#c0392b',
     feeds_en: [
       { name: 'BBC World',        url: 'https://feeds.bbci.co.uk/news/world/rss.xml',   tag: 'BBC' },
@@ -808,27 +827,31 @@ const CATEGORIES = [
       { name: 'War on the Rocks', url: 'https://warontherocks.com/feed/',               tag: 'WOTR' },
     ],
     feeds_zh: [
-      { name: 'BBC 中文',   url: 'https://feeds.bbci.co.uk/zhongwen/trad/rss.xml',      tag: 'BBC 中文' },
-      { name: '德國之聲',   url: 'https://rss.dw.com/rdf/rss-zho-all',                  tag: 'DW 中文' },
-      { name: '自由亞洲電台',url: 'https://www.rfa.org/mandarin/rss2.xml',              tag: 'RFA' },
-      { name: '法廣中文',   url: 'https://www.rfi.fr/tw/rss',                            tag: '法廣' },
+      { name: 'BBC 中文',  url: 'https://feeds.bbci.co.uk/zhongwen/trad/rss.xml', tag: 'BBC 中文' },
+      { name: '德國之聲',  url: `${HUB}/dw/zh`,                               tag: 'DW 中文' },
+      { name: '自由亞洲',  url: `${HUB}/rfa/zh`,                              tag: 'RFA' },
+      { name: '法廣中文',  url: `${HUB}/rfi/zh/radiofrance`,                  tag: '法廣' },
+      { name: '聯合新聞網',url: `${HUB}/udn/news/cate/2/global`,              tag: '聯合報' },
     ]},
 
+  // ── 深度分析 ──────────────────────────────────
   { id: 'analysis', icon: '&#128270;',           accent: '#16a085',
     feeds_en: [
-      { name: 'The Economist',   url: 'https://www.economist.com/asia/rss.xml',         tag: 'Economist' },
-      { name: 'Foreign Affairs', url: 'https://www.foreignaffairs.com/rss.xml',         tag: 'Foreign Affairs' },
-      { name: 'The Atlantic',    url: 'https://www.theatlantic.com/feed/all/',           tag: 'Atlantic' },
-      { name: 'Foreign Policy',  url: 'https://foreignpolicy.com/feed/',                tag: 'FP' },
-      { name: 'SCMP Analysis',   url: 'https://www.scmp.com/rss/4/feed',                tag: 'SCMP' },
+      { name: 'The Economist',   url: 'https://www.economist.com/asia/rss.xml',   tag: 'Economist' },
+      { name: 'Foreign Affairs', url: 'https://www.foreignaffairs.com/rss.xml',   tag: 'Foreign Affairs' },
+      { name: 'The Atlantic',    url: 'https://www.theatlantic.com/feed/all/',     tag: 'Atlantic' },
+      { name: 'Foreign Policy',  url: 'https://foreignpolicy.com/feed/',          tag: 'FP' },
+      { name: 'SCMP Analysis',   url: 'https://www.scmp.com/rss/4/feed',          tag: 'SCMP' },
     ],
     feeds_zh: [
-      { name: '香港01',     url: 'https://www.hk01.com/rss/index',                      tag: '香港01' },
-      { name: '端傳媒',     url: 'https://theinitium.com/feed/latest/zh-hans',           tag: '端傳媒' },
-      { name: '聯合報',     url: 'https://udn.com/rssfeed/news/2/0?ch=news',             tag: '聯合報' },
-      { name: 'DW 中文評論', url: 'https://rss.dw.com/rdf/rss-zho-all',                 tag: 'DW 中文' },
+      { name: '香港01',    url: `${HUB}/hk01/breaking-news`,                  tag: '香港01' },
+      { name: '端傳媒',    url: `${HUB}/initium/latest`,                       tag: '端傳媒' },
+      { name: '聯合新聞網',url: `${HUB}/udn/news/cate/2/global`,              tag: '聯合報' },
+      { name: '德國之聲',  url: `${HUB}/dw/zh`,                               tag: 'DW 中文' },
+      { name: '信報財經',  url: `${HUB}/hkej/index`,                          tag: '信報' },
     ]},
 
+  // ── 西方媒體 ──────────────────────────────────
   { id: 'press',    icon: '&#128240;',           accent: '#7f8c8d',
     feeds_en: [
       { name: 'The Times',     url: 'https://www.thetimes.co.uk/rss/world',             tag: 'The Times' },
@@ -839,10 +862,11 @@ const CATEGORIES = [
       { name: 'NYT World',     url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', tag: 'NYT' },
     ],
     feeds_zh: [
-      { name: 'BBC 中文',   url: 'https://feeds.bbci.co.uk/zhongwen/trad/rss.xml',      tag: 'BBC 中文' },
-      { name: '德國之聲',   url: 'https://rss.dw.com/rdf/rss-zho-all',                  tag: 'DW 中文' },
-      { name: '法廣中文',   url: 'https://www.rfi.fr/tw/rss',                            tag: '法廣' },
-      { name: '美國之音',   url: 'https://www.voachinese.com/api/z-mqiupme-op_oes',      tag: 'VOA 中文' },
+      { name: 'BBC 中文',  url: 'https://feeds.bbci.co.uk/zhongwen/trad/rss.xml', tag: 'BBC 中文' },
+      { name: '德國之聲',  url: `${HUB}/dw/zh`,                               tag: 'DW 中文' },
+      { name: '法廣中文',  url: `${HUB}/rfi/zh/radiofrance`,                  tag: '法廣' },
+      { name: '美國之音',  url: `${HUB}/voachinese/index`,                    tag: 'VOA 中文' },
+      { name: '自由亞洲',  url: `${HUB}/rfa/zh`,                              tag: 'RFA' },
     ]},
 ];
 
