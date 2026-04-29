@@ -1137,45 +1137,7 @@ async function fetchAll() {
 
   return unique;
 }
-
-  // 逐個分類進行處理
-  for (const cat of CATEGORIES.filter(c => c.id !== 'all')) {
-    if (lang === 'zh') {
-      // 先嘗試抓取中文來源
-      let catArticles = await fetchInBatches(cat.feeds_zh || [], cat.id, cat.accent);
-
-      // 🛠️ 核心機制 2：智能備用 (Smart Fallback)
-      // 如果中文來源全軍覆沒（回傳 0 篇），才啟動英文來源來填補版面
-      if (catArticles.length === 0 && cat.feeds_en && cat.feeds_en.length > 0) {
-         console.warn(`[${cat.id}] 中文來源載入失敗或無資料，啟動英文備用來源...`);
-         const backupArticles = await fetchInBatches(cat.feeds_en, cat.id, cat.accent);
-         catArticles.push(...backupArticles);
-      }
-      
-      allFetched.push(...catArticles);
-
-    } else {
-      // 英文模式：正常抓取英文來源
-      const enArticles = await fetchInBatches(cat.feeds_en || [], cat.id, cat.accent);
-      allFetched.push(...enArticles);
-    }
-  }
-
-  // ── 以下維持你原本的去重與翻譯邏輯 ──
-  const seen = new Set();
-  const unique = allFetched.filter(a => {
-    if (seen.has(a.link)) return false;
-    seen.add(a.link); return true;
-  }).sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-
-  // 中文模式下，翻譯那些被迫拿來墊檔的英文標題
-  if (lang === 'zh') {
-    await translateArticles(unique, 30);
-  }
-
-  return unique;
-}
-
+  
 async function refreshAll() {
   const btn = document.getElementById('refresh-btn');
   btn.classList.add('spinning');
