@@ -913,201 +913,360 @@ function applyStaticStrings() {
 // CLOCK
 // ═══════════════════════════════════════════════
 function updateClock() {
-    const now = new Date();
-    const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-    document.getElementById('clock').textContent = now.toLocaleTimeString(currentLang === 'zh' ? 'zh-HK' : 'en-US', options);
-    
-    if (nextRefreshAt) {
-        const diff = Math.max(0, Math.floor((nextRefreshAt - now) / 1000));
-        const m = Math.floor(diff / 60);
-        const s = diff % 60;
-        document.getElementById('next-refresh').textContent = t().nextRefresh(m, s.toString().padStart(2, '0'));
-        if (diff <= 0) refreshAll();
-    }
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('en-HK', {
+    timeZone: 'Asia/Hong_Kong', hour12: false,
+  }) + ' HKT';
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+function updateCountdown() {
+  if (!nextRefreshAt) return;
+  const diff = Math.max(0, Math.round((nextRefreshAt - Date.now()) / 1000));
+  const m = String(Math.floor(diff / 60)).padStart(2, '0');
+  const s = String(diff % 60).padStart(2, '0');
+  document.getElementById('next-refresh').textContent = t().nextRefresh(m, s);
+}
+setInterval(updateCountdown, 1000);
+
+// ═══════════════════════════════════════════════
+// HERO HEADLINE
+// ═══════════════════════════════════════════════
+function extractKeywords(title) {
+  const stop = new Set([
+    'the','a','an','in','on','at','to','of','and','or','is','are','was','were',
+    'for','with','this','that','as','from','by','it','its','be','has','have',
+    'had','will','would','could','should','not','but','about','after','before',
+    'over','than','more','also','their','they','he','she','we','you','our',
+    'his','her','into','up','new','says','said','amid',
+  ]);
+  return title.toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/)
+    .filter(w => w.length > 3 && !stop.has(w));
+}
+
+function matchScore(title, keywords) {
+  const tl = title.toLowerCase();
+  return keywords.reduce((s, kw) => s + (tl.includes(kw) ? 1 : 0), 0);
+}
+
+function renderHero() {
+  const container = document.getElementById('hero-container');
+  if (!allArticles.length) return;
+
+  const lead     = allArticles[0];
+  const keywords = extractKeywords(lead.title);
+  const voices   = allArticles
+    .filter(a => a.link !== lead.link)
+    .map(a => ({ ...a, score: matchScore(a.title, keywords) }))
+    .filter(a => a.score > 0)
+    .sort((a, b) => b.score - a.score || new Date(b.pubDate) - new Date(a.pubDate))
+    .slice(0, 6);
+  const voiceList = voices.length >= 2 ? voices : allArticles.filter(a => a.link !== lead.link).slice(0, 6);
+
+  const rawDesc = stripHtml(lead.description || '');
+  const desc    = rawDesc.length > 10
+    ? rawDesc.slice(0, 340) + (rawDesc.length > 340 ? '…' : '')
+    : (currentLang === 'zh' ? '點擊閱讀完整報道。' : 'Click to read the full story at the source.');
+
+  const s = t();
+  container.innerHTML = `
+    <div class="hero-section">
+      <div class="hero-top">
+        <div class="hero-eyebrow">
+          <span class="hero-eyebrow-dot"></span>
+          ${s.topStory}
+        </div>
+        <a class="hero-headline" href="${lead.link}" target="_blank" rel="noopener noreferrer">
+          ${escHtml(lead.title)}
+        </a>
+        <p class="hero-desc">${escHtml(desc)}</p>
+        <div class="hero-meta">
+          <div class="hero-source-badge">
+            <span class="hero-source-dot" style="background:${lead.accent}"></span>
+            ${escHtml(lead.source)}
+          </div>
+          <span class="hero-time">${timeAgo(lead.pubDate)}</span>
+          <a class="hero-read-btn" href="${lead.link}" target="_blank" rel="noopener noreferrer">
+            ${s.fullStory}
+          </a>
+        </div>
+      </div>
+      <div class="hero-voices">
+        <div class="voices-heading">${s.mediaCoverage}</div>
+        <div class="voices-grid">
+          ${voiceList.map(a => `
+            <a class="voice-card" href="${a.link}" target="_blank" rel="noopener noreferrer">
+              <div class="voice-source">
+                <span class="voice-dot" style="background:${a.accent}"></span>
+                ${escHtml(a.source)}
+              </div>
+              <div class="voice-title">${escHtml(a.title)}</div>
+              <div class="voice-time">${timeAgo(a.pubDate)}</div>
+            </a>`).join('')}
+        </div>
+      </div>
+    </div>`;
 }
 
 // ═══════════════════════════════════════════════
-// DATA FETCHING (修復重點：根據語言抓取正確 Source)
+// TABS
 // ═══════════════════════════════════════════════
-async function fetchFeed(source, categoryId) {
-    try {
-        // 加上 api_key 以提高成功率並處理中文編碼
-        const response = await fetch(`${RSS2JSON}${encodeURIComponent(source.url)}&api_key=${RSS2JSON_KEY}&count=${ITEMS_PER_FEED}`);
-        const data = await response.json();
-        
-        if (data.status === 'ok') {
-            return data.items.map(item => ({
-                ...item,
-                sourceName: source.name,
-                tag: source.tag,
-                categoryId: categoryId,
-                // 統一時間格式
-                ts: new Date(item.pubDate.replace(/-/g, '/')).getTime() 
-            }));
-        }
-    } catch (e) {
-        console.error(`Failed to fetch ${source.name}:`, e);
-    }
+function renderTabs() {
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const label    = t().cats[cat.id]?.label || cat.id;
+    const articles = cat.id === 'all' ? allArticles : allArticles.filter(a => a.catId === cat.id);
+    const btn      = document.createElement('button');
+    btn.className  = 'tab-btn' + (cat.id === activeTab ? ' active' : '');
+    btn.style.setProperty('--tab-accent', cat.accent);
+    if (cat.id === activeTab) btn.style.background = cat.accent;
+    btn.innerHTML  = `${cat.icon} ${label} <span class="count">${articles.length}</span>`;
+    btn.onclick    = () => { activeTab = cat.id; renderTabs(); renderContent(); };
+    tabsEl.appendChild(btn);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// CONTENT
+// ═══════════════════════════════════════════════
+function renderContent() {
+  const contentEl = document.getElementById('content');
+  const articles  = activeTab === 'all' ? allArticles : allArticles.filter(a => a.catId === activeTab);
+  const s         = t();
+
+  if (articles.length === 0) {
+    contentEl.innerHTML = `
+      <div class="section-title">${s.noArticles}</div>
+      <div class="news-grid">${[...Array(6)].map(() => skeletonCard()).join('')}</div>`;
+    return;
+  }
+
+  if (activeTab === 'all') {
+    let html = '';
+    CATEGORIES.filter(c => c.id !== 'all').forEach(cat => {
+      const cats = articles.filter(a => a.catId === cat.id);
+      if (!cats.length) return;
+      const label = s.cats[cat.id]?.label || cat.id;
+      html += `<div class="section-title" style="margin-top:1.8rem">${cat.icon} ${label}</div>`;
+      html += `<div class="news-grid">${cats.slice(0, 6).map((a, i) => articleCard(a, i)).join('')}</div>`;
+    });
+    contentEl.innerHTML = html;
+  } else {
+    const cat   = CATEGORIES.find(c => c.id === activeTab);
+    const label = s.cats[cat.id]?.label || cat.id;
+    contentEl.innerHTML = `
+      <div class="section-title">${cat.icon} ${label} — ${articles.length} ${s.articles}</div>
+      <div class="news-grid">${articles.map((a, i) => articleCard(a, i)).join('')}</div>`;
+  }
+}
+
+function articleCard(a, index) {
+  const delay = (index % 12) * 40;
+  const desc  = stripHtml(a.description || '').slice(0, 160);
+  return `
+    <a class="news-card" href="${a.link}" target="_blank" rel="noopener"
+       style="animation-delay:${delay}ms; --tag-color:${a.accent}">
+      <div class="card-meta">
+        <span class="card-tag">${a.tag}</span>
+        <span class="card-time">${timeAgo(a.pubDate)}</span>
+      </div>
+      <div class="card-title">${escHtml(a.title)}</div>
+      ${desc ? `<div class="card-desc">${escHtml(desc)}</div>` : ''}
+      <div class="card-source">
+        <span class="card-source-dot"></span>
+        ${escHtml(a.source)}
+      </div>
+    </a>`;
+}
+
+function skeletonCard() {
+  return `
+    <div class="skeleton-card">
+      <div class="skel skel-sm"></div>
+      <div class="skel skel-title"></div>
+      <div class="skel skel-title2"></div>
+      <div class="skel skel-desc"></div>
+      <div class="skel skel-desc2"></div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════
+// FETCH
+// ═══════════════════════════════════════════════
+async function fetchFeed(feedCfg, catId, accent) {
+  let url = RSS2JSON + encodeURIComponent(feedCfg.url) + `&count=${ITEMS_PER_FEED}`;
+  if (RSS2JSON_KEY) url += `&api_key=${RSS2JSON_KEY}`;
+  try {
+    const r    = await fetch(url, { signal: AbortSignal.timeout(12000) });
+    if (!r.ok) { console.warn(`[${feedCfg.name}] HTTP ${r.status}`); return []; }
+    const data = await r.json();
+    if (data.status !== 'ok') { console.warn(`[${feedCfg.name}] rss2json:`, data.message); return []; }
+    return (data.items || []).map(item => ({
+      title: item.title || '',
+      description: item.description || item.content || '',
+      link: item.link || '#',
+      pubDate: item.pubDate || new Date().toISOString(),
+      source: feedCfg.name,
+      tag: feedCfg.tag,
+      catId,
+      accent,
+    }));
+  } catch(e) {
+    console.warn(`[${feedCfg.name}] fetch error:`, e.message);
     return [];
+  }
+}
+
+// Detect if a string is mostly Chinese/Japanese/Korean characters
+function isCJK(str) {
+  const cjk = (str.match(/[\u4e00-\u9fff\u3400-\u4dbf\u3040-\u30ff]/g) || []).length;
+  return cjk / Math.max(str.replace(/\s/g,'').length, 1) > 0.25;
+}
+
+// Translate a single title via MyMemory free API
+async function translateTitle(title) {
+  if (!title || isCJK(title)) return title;
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(title.slice(0, 400))}&langpair=en|zh-TW`;
+    const r   = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    const d   = await r.json();
+    const tr  = d?.responseData?.translatedText;
+    if (tr && tr !== title && !tr.toUpperCase().includes('MYMEMORY') && !tr.toUpperCase().includes('QUOTA')) {
+      return tr;
+    }
+  } catch { /* ignore */ }
+  return title;
+}
+
+// Translate up to `limit` non-CJK articles in-place, in batches
+async function translateArticles(articles, limit = 30) {
+  const targets = articles.filter(a => !isCJK(a.title)).slice(0, limit);
+  if (!targets.length) return;
+  const BATCH = 5;
+  for (let i = 0; i < targets.length; i += BATCH) {
+    const batch = targets.slice(i, i + BATCH);
+    await Promise.allSettled(batch.map(async a => {
+      const translated = await translateTitle(a.title);
+      if (translated && translated !== a.title) a.title = translated;
+    }));
+    if (i + BATCH < targets.length) await new Promise(r => setTimeout(r, 200));
+  }
+}
+
+async function fetchAll() {
+  const lang     = currentLang;
+  const promises = [];
+
+  CATEGORIES.filter(c => c.id !== 'all').forEach(cat => {
+    if (lang === 'zh') {
+      // zh mode: Chinese sources first, English sources as fallback
+      (cat.feeds_zh || []).forEach(feed => promises.push(fetchFeed(feed, cat.id, cat.accent)));
+      (cat.feeds_en || []).forEach(feed => promises.push(fetchFeed(feed, cat.id, cat.accent)));
+    } else {
+      // en mode: English sources only
+      (cat.feeds_en || []).forEach(feed => promises.push(fetchFeed(feed, cat.id, cat.accent)));
+    }
+  });
+
+  const results  = await Promise.allSettled(promises);
+  const articles = [];
+  results.forEach(r => { if (r.status === 'fulfilled') articles.push(...r.value); });
+
+  const seen   = new Set();
+  const unique = articles.filter(a => {
+    if (seen.has(a.link)) return false;
+    seen.add(a.link); return true;
+  }).sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+  // In zh mode, translate any remaining English titles (capped at 30)
+  if (lang === 'zh') {
+    await translateArticles(unique, 30);
+  }
+
+  return unique;
 }
 
 async function refreshAll() {
-    const btn = document.getElementById('refresh-btn');
-    btn.classList.add('spinning');
-    
-    allArticles = [];
-    const fetchPromises = [];
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('spinning');
 
-    // 根據當前語言選擇對應的 feeds
-    CATEGORIES.forEach(cat => {
-        const feeds = currentLang === 'en' ? cat.feeds_en : cat.feeds_zh;
-        if (feeds) {
-            feeds.forEach(f => fetchPromises.push(fetchFeed(f, cat.id)));
-        }
-    });
+  const contentEl = document.getElementById('content');
+  contentEl.innerHTML = `<div class="section-title">${t().fetchingNews}</div>
+    <div class="news-grid">${[...Array(9)].map(() => skeletonCard()).join('')}</div>`;
 
-    const results = await Promise.all(fetchPromises);
-    allArticles = results.flat().sort((a, b) => b.ts - a.ts);
+  allArticles = await fetchAll();
 
-    // 移除重複標題
-    allArticles = allArticles.filter((v, i, a) => a.findIndex(t => t.title === v.title) === i);
-
+  if (allArticles.length === 0) {
+    contentEl.innerHTML = `<div class="error-msg">${t().feedError}</div>`;
+    document.getElementById('hero-container').innerHTML = '';
+    renderTabs();
     btn.classList.remove('spinning');
-    nextRefreshAt = new Date(Date.now() + REFRESH_INTERVAL);
-    
-    renderTabs();
-    renderContent();
-    renderTicker();
+    return;
+  }
+
+  updateTicker();
+  renderHero();
+  renderTabs();
+  renderContent();
+  console.log(`[NewsHub] Loaded ${allArticles.length} articles at ${new Date().toLocaleTimeString()}`);
+
+  btn.classList.remove('spinning');
+  clearTimeout(refreshTimer);
+  nextRefreshAt = Date.now() + REFRESH_INTERVAL;
+  refreshTimer  = setTimeout(refreshAll, REFRESH_INTERVAL);
 }
 
 // ═══════════════════════════════════════════════
-// RENDERING
+// TICKER
 // ═══════════════════════════════════════════════
-function renderTicker() {
-    const ticker = document.getElementById('ticker-text');
-    if (allArticles.length === 0) {
-        ticker.textContent = t().fetchingNews;
-        return;
-    }
-    ticker.innerHTML = allArticles.slice(0, 10).map(a => 
-        `<span>${a.title}</span>`
-    ).join('<span class="ticker-sep">/</span>');
+function updateTicker() {
+  const top = allArticles.slice(0, 20);
+  if (!top.length) return;
+  document.getElementById('ticker-text').innerHTML =
+    top.map(a => `<span>${escHtml(a.title)}</span><span class="ticker-sep">&#9679;</span>`).join('');
 }
 
-function renderTabs() {
-    const container = document.getElementById('tabs');
-    const s = t();
-    container.innerHTML = CATEGORIES.map(cat => {
-        const count = cat.id === 'all' 
-            ? allArticles.length 
-            : allArticles.filter(a => a.categoryId === cat.id).length;
-            
-        if (cat.id !== 'all' && count === 0) return ''; // 隱藏無文章的分類
-
-        return `
-            <button class="tab-btn ${activeTab === cat.id ? 'active' : ''}" 
-                    onclick="setTab('${cat.id}')"
-                    style="--tab-accent: ${cat.accent}">
-                ${cat.icon} ${s.cats[cat.id]?.label || cat.id}
-                <span class="count">${count}</span>
-            </button>
-        `;
-    }).join('');
+// ═══════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const m    = Math.floor(diff / 60000);
+  const s    = t();
+  if (m < 1)  return s.timeJustNow;
+  if (m < 60) return s.timeMin(m);
+  const h = Math.floor(m / 60);
+  if (h < 24) return s.timeHour(h);
+  return s.timeDay(Math.floor(h / 24));
 }
 
-function renderContent() {
-    const container = document.getElementById('content');
-    const heroContainer = document.getElementById('hero-container');
-    
-    const filtered = activeTab === 'all' 
-        ? allArticles 
-        : allArticles.filter(a => a.categoryId === activeTab);
-
-    if (filtered.length === 0) {
-        container.innerHTML = `<div class="error-msg">${t().noArticles}</div>`;
-        heroContainer.innerHTML = '';
-        return;
-    }
-
-    // 渲染頭條 (Hero)
-    const hero = filtered[0];
-    const catInfo = CATEGORIES.find(c => c.id === hero.categoryId);
-    heroContainer.innerHTML = `
-        <div class="hero-section">
-            <div class="hero-top">
-                <div class="hero-eyebrow">
-                    <div class="hero-eyebrow-dot"></div> ${t().topStory}
-                </div>
-                <a href="${hero.link}" target="_blank" class="hero-headline">${hero.title}</a>
-                <p class="hero-desc">${hero.description.replace(/<[^>]*>/g, '').slice(0, 160)}...</p>
-                <div class="hero-meta">
-                    <div class="hero-source-badge">
-                        <div class="hero-source-dot" style="background:${catInfo.accent}"></div>
-                        ${hero.sourceName}
-                    </div>
-                    <div class="hero-time">${formatTime(hero.ts)}</div>
-                    <a href="${hero.link}" target="_blank" class="hero-read-btn">${t().fullStory}</a>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // 渲染網格
-    container.innerHTML = `
-        <div class="section-title">${activeTab.toUpperCase()} ${t().articles}</div>
-        <div class="news-grid">
-            ${filtered.slice(1).map(article => renderCard(article)).join('')}
-        </div>
-    `;
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
-function renderCard(a) {
-    const cat = CATEGORIES.find(c => c.id === a.categoryId);
-    return `
-        <a href="${a.link}" target="_blank" class="news-card" style="--tag-color: ${cat.accent}">
-            <div class="card-meta">
-                <span class="card-tag">${a.tag}</span>
-                <span class="card-time">${formatTime(a.ts)}</span>
-            </div>
-            <div class="card-title">${a.title}</div>
-            <div class="card-desc">${a.description.replace(/<[^>]*>/g, '').slice(0, 80)}...</div>
-            <div class="card-source">
-                <div class="card-source-dot"></div>
-                ${a.sourceName}
-            </div>
-        </a>
-    `;
-}
-
-function formatTime(ts) {
-    const diff = Math.floor((Date.now() - ts) / 1000);
-    if (diff < 60) return t().timeJustNow;
-    if (diff < 3600) return t().timeMin(Math.floor(diff / 60));
-    if (diff < 86400) return t().timeHour(Math.floor(diff / 3600));
-    return t().timeDay(Math.floor(diff / 86400));
-}
-
-function setTab(id) {
-    activeTab = id;
-    renderTabs();
-    renderContent();
+function stripHtml(s) {
+  return s.replace(/<[^>]*>/g,'').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').trim();
 }
 
 // ═══════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
-    // 讀取快取設定
-    const savedLang = localStorage.getItem('lang');
-    if (savedLang) setLang(savedLang);
-    else applyStaticStrings();
-
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') toggleTheme();
-
-    setInterval(updateClock, 1000);
-    refreshAll();
-});
+(function init() {
+  const savedTheme = localStorage.getItem('theme');
+  const savedLang  = localStorage.getItem('lang');
+  if (savedTheme && savedTheme !== 'dark') toggleTheme();
+  if (savedLang  && savedLang  !== 'en') {
+    currentLang = savedLang;
+    document.getElementById('lang-zh-btn').classList.toggle('active-lang', savedLang === 'zh');
+    document.getElementById('lang-en-btn').classList.toggle('active-lang', savedLang === 'en');
+  }
+  applyStaticStrings();
+  renderTabs();
+  renderContent();
+  refreshAll();
+})();
 </script>
 </body>
 </html>
